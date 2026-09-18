@@ -16,17 +16,6 @@ Crucially, it solves the **Confused Deputy Problem** in agentic AI by inserting 
 
 ---
 
-## 👥 The 4-Member Team & Ownership
-
-| Owner | Track | Core Responsibilities |
-|---|---|---|
-| **Aarth** | **Frontend & Identity** | React (Vite), TailwindCSS, AWS Amplify Hosting, Amazon Cognito Auth, Task Console, Visual Policy Timeline |
-| **Anurag** | **Backend Orchestration** | AWS SAM CLI, LocalStack, Python 3.11 Lambda Orchestrator, API Gateway, DynamoDB Audit Trail |
-| **Naseer** | **Agentic AI** | Strands Agents SDK, Amazon Bedrock (Claude 3 Sonnet / Haiku), 4 MCP Operational Tools, Prompt Loops |
-| **Karthikeya** | **Security & Platform** | AWS Cedar Policy Suite, `cedarpy` PDP Interceptor, Cognito $\rightarrow$ Cedar Entity Mapping, Demo Script & Blog |
-
----
-
 ## 📑 Complete Documentation Suite
 
 All planning, specifications, protocols, and workflows are codified in our core documentation suite:
