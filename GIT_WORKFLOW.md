@@ -1,13 +1,14 @@
 # GIT_WORKFLOW.md — 4-Member Collaboration & Version Control
 
-**Project:** OpsStrands — Secure Multi-Agent Developer Productivity Orchestrator  
+**Project:** OpsStrands — Autonomous Civic Hazard & Emergency Triage Orchestrator  
 **Event:** WeMakeDevs Bharat Builds Tour — “First Commit” Hackathon (17–20 Sept 2026)  
+**Repository:** [https://github.com/AarthGoyal123/OpsStrands](https://github.com/AarthGoyal123/OpsStrands)  
 **Team (4 Members):** Aarth · Anurag · Naseer · Karthikeya  
 
 ---
 
 > **Read Before Your First Commit:**  
-> In a 3-day hackathon with 4 developers, bad git hygiene (merge conflicts, breaking someone else’s build, or accidentally pushing AWS credentials) will instantly derail your momentum. Follow this streamlined workflow to maintain speed without sacrificing stability.
+> In a 3-day hackathon with 4 developers, maintaining disciplined branch hygiene and preventing secrets leaks is critical. Follow this streamlined workflow.
 
 ---
 
@@ -31,10 +32,10 @@ We maintain **one central GitHub repository** representing the hackathon build. 
 ```
 Main GitHub Repository:
 https://github.com/AarthGoyal123/OpsStrands.git
-├── frontend/             --> Owned by Aarth
-├── backend/              --> Owned by Anurag
-├── agent/                --> Owned by Naseer
-├── security/             --> Owned by Karthikeya
+├── frontend/             --> Owned by Aarth (React PWA, Map, Camera)
+├── backend/              --> Owned by Anurag (SAM CLI, Lambda, DynamoDB)
+├── agent/                --> Owned by Naseer & Karthikeya (Strands SDK, Bedrock)
+├── security/             --> Owned by Karthikeya (Cedar Policies, cedarpy)
 └── template.yaml         --> SAM Template (Managed by Anurag)
 ```
 
@@ -61,68 +62,44 @@ git config --list | grep user
 Place this `.gitignore` at the repository root immediately. **Never commit without it.**
 
 ```gitignore
-# ==============================================================================
-# SECRETS & ENVIRONMENT VARIABLES (CRITICAL)
-# ==============================================================================
+# SECRETS & ENVIRONMENT VARIABLES
 .env
 .env.*
 !.env.example
 *.pem
 *.key
-*.pfx
-*.cert
 credentials
-credentials.json
 aws_credentials
 
-# ==============================================================================
 # PYTHON & AGENT DEPENDENCIES
-# ==============================================================================
 __pycache__/
 *.py[cod]
-*$py.class
 .venv/
 venv/
-env/
 *.egg-info/
 dist/
 build/
 .pytest_cache/
 
-# ==============================================================================
-# NODE / REACT / VITE FRONTEND
-# ==============================================================================
+# NODE / REACT FRONTEND
 node_modules/
 frontend/node_modules/
 frontend/dist/
 frontend/.amplify/
-.amplify/
 .vite/
-npm-debug.log*
-yarn-debug.log*
 
-# ==============================================================================
-# AWS SAM CLI & LOCALSTACK ARTIFACTS
-# ==============================================================================
+# AWS SAM & LOCALSTACK
 .aws-sam/
 samconfig.toml
 localstack/
-*.sqlite3
 
-# ==============================================================================
 # OS & IDE NOISE
-# ==============================================================================
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
-*.swp
-*.bak
-/tmp/
 *.log
 ```
-
-**Verification:** Run `git status`. If `.env`, `node_modules/`, or `.venv/` appear under untracked files, DO NOT commit. Fix `.gitignore` first.
 
 ---
 
@@ -131,16 +108,16 @@ Thumbs.db
 ```
 main (Production Deploy / Protected)
   ▲
-  ├─────── fe/aarth-task-ui          (Aarth: Frontend)
-  ├─────── be/anurag-sam-lambda      (Anurag: Backend)
-  ├─────── ai/naseer-strands-mcp     (Naseer: Agentic AI)
-  └─────── sec/karthikeya-cedar-pdp  (Karthikeya: Security)
+  ├─────── fe/aarth-hazard-pwa       (Aarth: Frontend & Map)
+  ├─────── be/anurag-geo-lambda      (Anurag: SAM & DynamoDB Geo-Store)
+  ├─────── ai/naseer-strands-triage  (Naseer & Karthikeya: Agentic AI Core)
+  └─────── sec/karthikeya-cedar-pdp  (Karthikeya: Cedar Civic Policies)
 ```
 
 ### Branch Naming Convention:
-- `fe/<description>`: Frontend components, Amplify configs, UI styling.
+- `fe/<description>`: Mobile PWA, camera upload, Leaflet map markers.
 - `be/<description>`: SAM CLI, Lambda handlers, API Gateway, DynamoDB.
-- `ai/<description>`: Strands Agent prompts, Bedrock bindings, MCP tools.
+- `ai/<description>`: Strands Agent prompts, Bedrock multimodal, MCP tools.
 - `sec/<description>`: Cedar policy specs, `cedarpy` interceptor, test vectors.
 - `integration/<description>`: Multi-owner wiring sessions.
 
@@ -154,19 +131,17 @@ Every commit message must begin with the corresponding **Task ID** from `PROJECT
 ### Examples:
 ```bash
 # Frontend
-git commit -m "[FE-002] Implement Visual Agent Timeline with allow/deny badges"
+git commit -m "[FE-002] Implement Leaflet hazard map with active red danger pins"
 
 # Backend
-git commit -m "[BE-001] Scaffold SAM template with LocalStack Lambda and API Gateway"
+git commit -m "[BE-001] Scaffold SAM template with LocalStack DynamoDB Geo-Store"
 
 # Agentic AI
-git commit -m "[AI-003] Add MCP operational tool get_recent_errors with log parser"
+git commit -m "[AI-003] Add MCP operational tool cluster_nearby_reports with geohashing"
 
 # Security & Platform
-git commit -m "[SEC-001] Define Cedar RBAC policy for staging vs prod deployments"
+git commit -m "[SEC-001] Define Cedar corroboration policy requiring 3 citizen reports"
 ```
-
-**Why this matters:** When demoing or explaining changes to judges, you can immediately trace any git commit directly back to your technical specification and status tracker.
 
 ---
 
@@ -176,15 +151,9 @@ Most work occurs in isolated folders, but changes to **shared surface areas** re
 
 ### Shared Surface Areas:
 1. `template.yaml` (SAM CLI deployment spec)
-2. `POST /task` request/response JSON schema (Defined in `OpsStrands_BUILD_GUIDE.md` §4.1)
+2. `POST /report` and `GET /hazards` JSON schemas (`OpsStrands_BUILD_GUIDE.md` §4)
 3. `authorize()` function signature (`OpsStrands_BUILD_GUIDE.md` §4.2)
 4. `.env.example` additions
-
-### Protocol:
-1. Open a short-lived branch (e.g., `integration/update-api-contract`).
-2. Post a quick diff in the team chat.
-3. Once the affected owner (e.g., Aarth for UI or Anurag for Lambda) gives a thumbs-up, merge to `main`.
-4. Run `git pull origin main` immediately on all 4 machines.
 
 ---
 
@@ -201,17 +170,9 @@ git reset HEAD <leaked-file>
 ```
 
 ### 7.2 Emergency Protocol: If an AWS Key Was Pushed to GitHub
-If an AWS Access Key or secret was pushed to a public or shared GitHub repo:
-1. **IMMEDIATE STEP 1: Revoke the Key in AWS Console.**  
-   Do not spend 10 minutes trying to rewrite git history first. Go straight to AWS IAM $\rightarrow$ Users $\rightarrow$ Security Credentials $\rightarrow$ Deactivate / Delete Access Key.
+1. **IMMEDIATE STEP 1: Revoke the Key in AWS Console.** (IAM $\rightarrow$ Deactivate Access Key).
 2. **STEP 2: Invalidate Bedrock / Third-party Tokens.**
-3. **STEP 3: Scrub Git History.**
-   Use `git-filter-repo` or BFG Repo-Cleaner:
-   ```bash
-   pip install git-filter-repo
-   git filter-repo --path-glob '*.env' --invert-paths --force
-   git push origin main --force
-   ```
+3. **STEP 3: Scrub Git History** using `git-filter-repo`.
 4. **STEP 4: Generate Fresh Keys** and update local `.env` files.
 
 ---
@@ -224,16 +185,14 @@ At the conclusion of each day's sync (after passing the Day's integration checkp
 # End of Day 1 (Foundation verified)
 git checkout main
 git pull origin main
-git tag -a day1-checkpoint -m "Day 1 Complete: LocalStack, Amplify skeleton, Bedrock test, Cedar engine verified"
+git tag -a day1-checkpoint -m "Day 1 Complete: LocalStack Geo-Store, Amplify skeleton, Bedrock multimodal, Cedar engine verified"
 git push origin day1-checkpoint
 
 # End of Day 2 (Full closed loop integrated)
-git tag -a day2-checkpoint -m "Day 2 Complete: Full end-to-end loop running with Cedar interception and timeline UI"
+git tag -a day2-checkpoint -m "Day 2 Complete: Full end-to-end loop running with Cedar corroboration gate and live map"
 git push origin day2-checkpoint
 
 # Day 3 (Demo freeze)
 git tag -a demo-ready-v1.0 -m "Day 3 Complete: 5 consecutive clean demo runs, video recorded, submission locked"
 git push origin demo-ready-v1.0
 ```
-
-These tags provide instant, known-good fallback states if an experiment goes wrong during demo preparations!
